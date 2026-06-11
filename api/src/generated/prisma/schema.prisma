@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TournamentFormat {
+  LEAGUE
+  PLAYOFF
+  GROUP_STAGE
+}
+
+enum TournamentStatus {
+  UPCOMING
+  IN_PROGRESS
+  FINISHED
+}
+
+enum MatchStatus {
+  SCHEDULED
+  IN_PROGRESS
+  FINISHED
+  SUSPENDED
+}
+
+enum EventType {
+  GOAL
+  YELLOW_CARD
+  RED_CARD
+  SUSPENSION
+}
+
+model Organizer {
+  id          String       @id @default(uuid())
+  name        String
+  email       String       @unique
+  password    String
+  tournaments Tournament[]
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+}
+
+model Tournament {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  rules       String?
+
+  format TournamentFormat
+  status TournamentStatus @default(UPCOMING)
+
+  points_win  Int @default(3)
+  points_draw Int @default(1)
+  points_loss Int @default(0)
+
+  playoff_teams Int?
+
+  organizer_id String
+  organizer    Organizer @relation(fields: [organizer_id], references: [id])
+
+  teams        Team[]
+  matches      Match[]
+  standings    Standings[]
+  match_events MatchEvent[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Team {
+  id       String  @id @default(uuid())
+  name     String
+  logo_url String?
+
+  tournament_id String
+  tournament    Tournament @relation(fields: [tournament_id], references: [id])
+
+  standings    Standings[]
+  match_events MatchEvent[]
+
+  matches_as_team_a Match[] @relation("TeamA")
+  matches_as_team_b Match[] @relation("TeamB")
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Match {
+  id String @id @default(uuid())
+
+  tournament_id String
+  tournament    Tournament @relation(fields: [tournament_id], references: [id])
+
+  team_a_id String
+  team_b_id String
+
+  team_a Team @relation("TeamA", fields: [team_a_id], references: [id])
+  team_b Team @relation("TeamB", fields: [team_b_id], references: [id])
+
+  team_a_score Int @default(0)
+  team_b_score Int @default(0)
+
+  match_date DateTime
+
+  status MatchStatus @default(SCHEDULED)
+
+  events MatchEvent[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Standings {
+  id String @id @default(uuid())
+
+  tournament_id String
+  tournament    Tournament @relation(fields: [tournament_id], references: [id])
+
+  team_id String
+  team    Team   @relation(fields: [team_id], references: [id])
+
+  played Int @default(0)
+
+  wins   Int @default(0)
+  draws  Int @default(0)
+  losses Int @default(0)
+
+  goals_for       Int @default(0)
+  goals_against   Int @default(0)
+  goal_difference Int @default(0)
+
+  points Int @default(0)
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model MatchEvent {
+  id String @id @default(uuid())
+
+  match_id String
+  match    Match  @relation(fields: [match_id], references: [id])
+
+  tournament_id String
+  tournament    Tournament @relation(fields: [tournament_id], references: [id])
+
+  team_id String
+  team    Team   @relation(fields: [team_id], references: [id])
+
+  type EventType
+
+  player_name String
+
+  created_at DateTime @default(now())
+}
