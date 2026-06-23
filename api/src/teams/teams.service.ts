@@ -21,13 +21,22 @@ export class TeamsService {
             throw new NotFoundException('Tournament not found');
         }
 
-        return this.prisma.team.create({
-            data: {
+        const team = await this.prisma.team.create({
+          data: {
             name: createTeamDto.name,
             logo_url: createTeamDto.logo_url,
             tournament_id: createTeamDto.tournament_id,
-            },
+          },
         });
+
+        await this.prisma.standings.create({
+          data: {
+            tournament_id: createTeamDto.tournament_id,
+            team_id: team.id,
+          },
+        });
+
+        return team;
     }
 
     async findByTournament(
