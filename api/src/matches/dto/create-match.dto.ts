@@ -1,4 +1,4 @@
-import { IsDateString, IsString } from 'class-validator';
+import { IsDateString, IsOptional, IsString } from 'class-validator';
 
 export class CreateMatchDto {
   @IsString()
@@ -10,6 +10,7 @@ export class CreateMatchDto {
   @IsString()
   team_b_id!: string;
 
+  @IsOptional()
   @IsDateString()
   match_date!: string;
 }

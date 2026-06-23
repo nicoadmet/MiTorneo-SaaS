@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { UpdateMatchResultDto } from './dto/update-match-result.dto';
+import { UpdateMatchDto } from './dto/update-match.dto';
 
 @Injectable()
 export class MatchesService {
@@ -213,6 +214,46 @@ export class MatchesService {
         },
       });
     }
+  }
+
+   async update(
+    matchId: string,
+    organizerId: string,
+    updateMatchDto: UpdateMatchDto,
+  ) {
+    const match = await this.prisma.match.findFirst({
+      where: {
+        id: matchId,
+      },
+      include: {
+        tournament: true,
+      },
+    });
+
+    if (!match) {
+      throw new BadRequestException(
+        'Match not found',
+      );
+    }
+
+    if (
+      match.tournament.organizer_id !== organizerId
+    ) {
+      throw new BadRequestException(
+        'Unauthorized',
+      );
+    }
+
+    return this.prisma.match.update({
+      where: {
+        id: matchId,
+      },
+      data: {
+        match_date: updateMatchDto.match_date
+          ? new Date(updateMatchDto.match_date)
+          : undefined,
+      },
+    });
   }
 
 }

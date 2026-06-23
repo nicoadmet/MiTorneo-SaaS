@@ -78,4 +78,23 @@ export class TournamentsController {
   ) {
     return this.matchesService.findByTournament(id);
   }
+
+  @Get(':id/standings')
+  getStandings(
+    @Param('id') id: string,
+  ) {
+    return this.tournamentsService.getStandings(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post(':id/generate-fixture')
+  generateFixture(
+    @Param('id') id: string,
+    @Request() req: any,
+  ) {
+    return this.tournamentsService.generateFixture(
+      id,
+      req.user.id,
+    );
+  }
 }
