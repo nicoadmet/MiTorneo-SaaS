@@ -256,4 +256,46 @@ export class MatchesService {
     });
   }
 
+  async delete(
+    matchId: string,
+    organizerId: string,
+  ) {
+    const match = await this.prisma.match.findFirst({
+      where: {
+        id: matchId,
+      },
+      include: {
+        tournament: true,
+      },
+    });
+
+    if (!match) {
+      throw new BadRequestException(
+        'Match not found',
+      );
+    }
+
+    if (
+      match.tournament.organizer_id !== organizerId
+    ) {
+      throw new BadRequestException(
+        'Unauthorized',
+      );
+    }
+
+    await this.prisma.match.delete({
+      where: {
+        id: matchId,
+      },
+    });
+
+    await this.recalculateStandings(
+      match.tournament_id,
+    );
+
+    return {
+      message: 'Match deleted successfully',
+    };
+  }
+
 }

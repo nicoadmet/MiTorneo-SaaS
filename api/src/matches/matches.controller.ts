@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Patch, Request, UseGuards, Param } from '@nestjs/common';
+import { Body, Controller, Post, Patch, Delete, Request, UseGuards, Param } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { MatchesService } from './matches.service';
@@ -49,5 +49,17 @@ export class MatchesController {
       req.user.id,
       updateMatchDto,
     );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(':id')
+  delete(
+    @Param('id') id: string,
+    @Request() req: any,
+  ) {
+    return this.matchesService.delete(
+      id,
+      req.user.id,
+    )
   }
 }
