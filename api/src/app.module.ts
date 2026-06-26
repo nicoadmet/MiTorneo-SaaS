@@ -6,10 +6,11 @@ import { TournamentsModule } from './tournaments/tournaments.module';
 import { TeamsModule } from './teams/teams.module';
 import { TeamsService } from './teams/teams.service';
 import { MatchesModule } from './matches/matches.module';
+import { MatchEventsModule } from './match-events/match-events.module';
 
 
 @Module({
-  imports: [OrganizerModule, PrismaModule, AuthModule, TournamentsModule, TeamsModule, MatchesModule],
+  imports: [OrganizerModule, PrismaModule, AuthModule, TournamentsModule, TeamsModule, MatchesModule, MatchEventsModule],
   controllers: [],
   providers: [TeamsService],
 })
