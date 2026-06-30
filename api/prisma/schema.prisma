@@ -103,6 +103,10 @@ model Match {
 
   match_date       DateTime?
 
+  round            Int?
+
+  round            Int?
+
   status           MatchStatus  @default(SCHEDULED)
 
   events           MatchEvent[]
